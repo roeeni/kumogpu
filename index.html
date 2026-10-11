@@ -47,24 +47,43 @@ h1{text-shadow:0 0 12px rgba(232,176,74,.35)}
 .sub{opacity:0;transition:opacity .8s}
 .sub.on{opacity:1}
 @media(prefers-reduced-motion:reduce){.cur,.dot{animation:none}.bar i{transition:none}}
+.nav{margin:14px 0 4px;font-size:13px;color:var(--dim)}
+.nav a{text-decoration:none}
+h3{font:inherit;color:var(--hi);font-weight:700;margin:0}
+h3:before{content:"### ";color:var(--dim)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+html{scroll-behavior:smooth}
+h2{scroll-margin-top:16px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
 <h1><span id="ty">gpu-pilot</span><span class="cur"></span></h1>
 <p class="dim sub on" id="sub">H100 hours and an open-model API, run by one person you can email. Early-access pilot.</p>
+<nav class="nav">[ <a href="#offer">offer</a> | <a href="#why">why</a> | <a href="#compare">compare</a> | <a href="#live">live</a> | <a href="#scope">limits</a> | <a href="#contact">contact</a> ]</nav>
+
 
 <p class="p">cat README</p>
 <p>I run a small GPU setup and I want a few teams to use it on real jobs and tell me what breaks. Pricing is set under the usual marketplaces. It is a pilot: capacity is limited and there is no SLA.</p>
 
-<h2>offer</h2>
+<h2 id="offer">offer</h2>
 <table>
 <tr><th>what</th><th>price</th><th>notes</th></tr>
 <tr><td>H100 80GB</td><td>$1.49 / hour</td><td>dedicated, SSH, pay for hours used</td></tr>
 <tr><td>chat API</td><td>~15% below OpenRouter</td><td>OpenAI-compatible, Qwen-class open models</td></tr>
 </table>
 
-<h2>compare</h2>
+<h2 id="why">why this one</h2>
+<ul>
+<li id="pr">price: below every row in the comparison, including the marketplace floor</li>
+<li>no contract, no minimum, no platform to migrate off</li>
+<li>one person runs it. You email me and I answer, no ticket queue</li>
+<li>GPU hours and an OpenAI-compatible API from the same small supplier</li>
+</ul>
+<p class="dim">What you give up: no SLA, no big-cloud compliance paperwork, capacity for a few teams only. If you need an SLA today, use a big cloud.</p>
+
+<h2 id="compare">compare</h2>
 <p class="dim">H100 80GB, USD per GPU-hour, list prices checked 12 Oct 2026.</p>
 <table>
 <tr><th>option</th><th>price</th><th>what you get</th></tr>
@@ -76,7 +95,7 @@ h1{text-shadow:0 0 12px rgba(232,176,74,.35)}
 </table>
 <p class="dim">API: priced about 15% under OpenRouter for the same class of open models.</p>
 
-<h2 id="lv"><span class="dot"></span>live</h2>
+<h2 id="live"><span class="dot"></span><span class="dot"></span>live</h2>
 <p class="dim">OpenRouter data is fetched when this page loads, Vast hourly. Amber = real market data, grey = static price from the vendor page (no public price API), white = this pilot.</p>
 <p class="p">H100 per GPU-hour</p>
 <div id="g1"><p class="dim">loading...</p></div>
@@ -85,35 +104,34 @@ h1{text-shadow:0 0 12px rgba(232,176,74,.35)}
 <div id="g2"><p class="dim">loading...</p></div>
 <p class="dim" id="g2n"></p>
 
-<h2>why this one</h2>
-<ul>
-<li id="pr">price: below every row above, including the marketplace floor</li>
-<li>no contract, no minimum, no platform to migrate off</li>
-<li>one person runs it. You email me and I answer, no ticket queue</li>
-<li>GPU hours and an OpenAI-compatible API from the same small supplier</li>
-</ul>
-<p class="dim">What you give up: no SLA, no big-cloud compliance paperwork, capacity for a few teams only. If you need an SLA today, use a big cloud.</p>
-
-<h2>fits</h2>
+<h2 id="scope">fits and limits</h2>
+<div class="two">
+<div><h3>fits</h3>
 <ul>
 <li>fine-tuning runs and batch inference</li>
 <li>serving a model you already picked</li>
 <li>teams that rent GPUs for clients and want a second source</li>
 </ul>
-
-<h2>limits</h2>
+</div>
+<div><h3>limits</h3>
 <ul>
 <li>no uptime guarantee yet</li>
 <li>pilot pricing can change as the service matures</li>
 <li>a few teams at a time</li>
 </ul>
+</div>
+</div>
 
-<h2>access</h2>
-<p>Email what you would run and roughly how many hours a month. I answer myself.</p>
-<p class="p"><a href="mailto:tpmel53@gmail.com?subject=gpu-pilot%20access&amp;body=What%20I%20would%20run%3A%0AHours%20per%20month%3A%0AModel%20or%20framework%3A">mail tpmel53@gmail.com</a></p>
-<p class="p"><a href="https://il.linkedin.com/in/roee-ninyo">linkedin.com/in/roee-ninyo</a></p>
-<p class="p" style="overflow-wrap:anywhere"><a href="card.txt">curl -fsSL https://roeeni.github.io/gpu-pilot/card.txt</a></p>
-<p class="dim">Discord: invite coming soon. Telegram: invite coming soon.</p>
+<h2 id="contact">contact</h2>
+<p>Email what you would run, roughly how many hours a month, and your model or framework. I answer myself.</p>
+<table>
+<tr><th>channel</th><th>where</th></tr>
+<tr><td>email</td><td><a href="mailto:tpmel53@gmail.com?subject=gpu-pilot%20access&amp;body=What%20I%20would%20run%3A%0AHours%20per%20month%3A%0AModel%20or%20framework%3A">tpmel53@gmail.com</a></td></tr>
+<tr><td>linkedin</td><td><a href="https://il.linkedin.com/in/roee-ninyo">linkedin.com/in/roee-ninyo</a></td></tr>
+<tr><td>terminal</td><td style="overflow-wrap:anywhere"><a href="card.txt">curl -fsSL https://roeeni.github.io/gpu-pilot/card.txt</a></td></tr>
+<tr><td>discord</td><td class="dim">invite coming soon</td></tr>
+<tr><td>telegram</td><td class="dim">invite coming soon</td></tr>
+</table>
 </main>
 <footer>HaShlosha 2, Tel Aviv<br>To stop hearing from me, reply STOP to any email.</footer>
 <script>
