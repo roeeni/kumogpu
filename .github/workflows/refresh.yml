@@ -1,0 +1,30 @@
+name: refresh-prices
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: fetch vast H100 offers
+        run: |
+          python3 - <<'PY'
+          import json,statistics,urllib.request,datetime
+          Q='%7B%22gpu_name%22%3A%7B%22eq%22%3A%22H100%20SXM%22%7D%2C%22rentable%22%3A%7B%22eq%22%3Atrue%7D%2C%22type%22%3A%22on-demand%22%7D'
+          d=json.load(urllib.request.urlopen('https://console.vast.ai/api/v0/bundles/?q='+Q))['offers']
+          p=sorted(o['dph_total']/o['num_gpus'] for o in d)
+          assert p
+          out={"source":"console.vast.ai public offers API, H100 SXM on-demand, per GPU-hour","updated":datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),"offers":len(p),"min":round(p[0],3),"median":round(statistics.median(p),3),"max":round(p[-1],3)}
+          json.dump(out,open('data/vast-h100.json','w'),indent=1)
+          PY
+      - name: commit
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          git add data/vast-h100.json
+          git commit -m "refresh vast prices" || exit 0
+          git push
