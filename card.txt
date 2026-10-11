@@ -1,0 +1,19 @@
+gpu-pilot
+H100 hours and an open-model API. Early-access pilot.
+
+H100 80GB: $1.49/hour, dedicated SSH access, pay for hours used.
+Chat API: about 15% below OpenRouter, OpenAI-compatible.
+Models: Qwen-class open models. Ask which models are currently served.
+Limited capacity. No SLA. Pilot pricing can change.
+
+To start: email what you would run, rough hours per month,
+and your model or framework. Availability is confirmed by the operator.
+
+Email: tpmel53@gmail.com
+LinkedIn: https://il.linkedin.com/in/roee-ninyo
+Website: https://roeeni.github.io/gpu-pilot/
+
+SSH chat and IRC: not live yet.
+Discord and Telegram: invite links coming soon.
+
+Please do not send passwords, API keys, payment details, or private datasets.
