@@ -28,6 +28,14 @@ ul{margin:10px 0;padding-left:2ch;list-style:"- "}
 li{margin:4px 0}
 footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px solid var(--rule);color:var(--dim);font-size:13px}
 @media(max-width:560px){td:first-child{white-space:normal}}
+.row{display:grid;grid-template-columns:15ch 1fr 11ch;gap:10px;align-items:center;margin:5px 0;font-size:13px}
+.bar{height:12px;background:var(--rule);position:relative}
+.bar i{display:block;height:100%;background:var(--dim)}
+.bar i.live{background:var(--acc)}
+.bar i.me{background:var(--hi)}
+.row span:last-child{text-align:right;color:var(--hi)}
+.tag{color:var(--dim)}
+@media(max-width:560px){.row{grid-template-columns:11ch 1fr 9ch;font-size:12px}}
 </style>
 </head>
 <body>
@@ -57,9 +65,18 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 </table>
 <p class="dim">API: priced about 15% under OpenRouter for the same class of open models.</p>
 
+<h2>live</h2>
+<p class="dim">OpenRouter data is fetched when this page loads. Amber = real market data, grey = static price from the vendor page (no public price API), white = this pilot.</p>
+<p class="p">H100 per GPU-hour</p>
+<div id="g1"><p class="dim">loading...</p></div>
+<p class="dim" id="g1n"></p>
+<p class="p">open-model API, USD per 1M output tokens (OpenRouter live, pilot = 15% below)</p>
+<div id="g2"><p class="dim">loading...</p></div>
+<p class="dim" id="g2n"></p>
+
 <h2>why this one</h2>
 <ul>
-<li>price: below every row above, including the marketplace floor</li>
+<li id="pr">price: below every row above, including the marketplace floor</li>
 <li>no contract, no minimum, no platform to migrate off</li>
 <li>one person runs it. You email me and I answer, no ticket queue</li>
 <li>GPU hours and an OpenAI-compatible API from the same small supplier</li>
@@ -85,5 +102,30 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 <p class="p"><a href="mailto:tpmel53@gmail.com?subject=gpu-pilot%20access&amp;body=What%20I%20would%20run%3A%0AHours%20per%20month%3A%0AModel%20or%20framework%3A">mail tpmel53@gmail.com</a></p>
 </main>
 <footer>HaShlosha 2, Tel Aviv<br>To stop hearing from me, reply STOP to any email.</footer>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function row(l,v,max,cls,t){var d=document.createElement("div");d.className="row";
+d.innerHTML='<span></span><div class="bar"><i class="'+cls+'" style="width:'+Math.max(2,v/max*100)+'%"></i></div><span></span>';
+d.children[0].textContent=l;d.children[2].textContent=t;return d}
+function ago(iso){var m=Math.round((Date.now()-Date.parse(iso))/60000);return m<90?m+" min ago":Math.round(m/60)+" h ago"}
+var base=[["gpu-pilot",1.49,"me","$1.49"],["Lambda",3.99,"","$3.99 static"],["Together",3.99,"","$3.99 static"],["AWS p5",6.88,"","$6.88 static"]];
+function h100(v){var g=$("g1");g.innerHTML="";var r=base.slice(0,1);
+if(v){r.push(["Vast floor",v.min,"live","$"+v.min.toFixed(2)]);r.push(["Vast median",v.median,"live","$"+v.median.toFixed(2)]);}
+r=r.concat(base.slice(1));
+r.forEach(function(x){g.appendChild(row(x[0],x[1],7,x[2],x[3]))});
+$("g1n").textContent=v?"Vast: "+v.offers+" on-demand H100 SXM offers. Vast does not allow browser requests, so this is a stored snapshot taken "+v.updated.replace("T"," ").replace("Z"," UTC")+" ("+ago(v.updated)+"). Static rows checked 12 Oct 2026, sources in the table above.":"Live Vast data unavailable, showing static prices checked 12 Oct 2026 only.";
+if(v&&v.min<=1.49){$("pr").textContent="price: at or near the marketplace floor, with a dedicated box and one person to ask"}}
+fetch("data/vast-h100.json?"+Date.now()).then(function(r){return r.json()}).then(h100).catch(function(){h100(null)});
+fetch("https://openrouter.ai/api/v1/models").then(function(r){return r.json()}).then(function(j){
+var m=j.data.filter(function(x){return /^qwen\//.test(x.id)&&x.hugging_face_id&&x.id.indexOf(":free")<0&&+x.pricing.completion>0}).sort(function(a,b){return b.created-a.created}).slice(0,4);
+if(!m.length)throw 0;var g=$("g2");g.innerHTML="";var max=0;
+m.forEach(function(x){max=Math.max(max,x.pricing.completion*1e6)});
+m.forEach(function(x){var p=x.pricing.completion*1e6,n=x.id.replace("qwen/","");
+g.appendChild(row(n,p,max,"live","$"+p.toFixed(2)));g.appendChild(row("  pilot",p*.85,max,"me","$"+(p*.85).toFixed(2)))});
+$("g2n").textContent="OpenRouter models API, 4 newest open-weight Qwen models, fetched "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC. Pilot column is the 15% discount applied to that price, for models I serve; ask which.";
+}).catch(function(){$("g2").innerHTML='<p class="dim">Live OpenRouter data unavailable. API pricing: about 15% under OpenRouter for the same model.</p>'});
+})();
+</script>
 </body>
 </html>
