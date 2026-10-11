@@ -36,12 +36,23 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 .row span:last-child{text-align:right;color:var(--hi)}
 .tag{color:var(--dim)}
 @media(max-width:560px){.row{grid-template-columns:11ch 1fr 9ch;font-size:12px}}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 3px)}
+h1{text-shadow:0 0 12px rgba(232,176,74,.35)}
+.cur{display:inline-block;width:.6em;height:1.05em;background:var(--acc);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:8px;box-shadow:0 0 8px var(--acc);animation:pulse 1.6s ease-in-out infinite;vertical-align:1px}
+@keyframes pulse{50%{opacity:.25;box-shadow:0 0 2px var(--acc)}}
+.bar i{transition:width 1.1s cubic-bezier(.2,.8,.2,1);width:0}
+.bar i.live{box-shadow:0 0 8px rgba(232,176,74,.45)}
+.sub{opacity:0;transition:opacity .8s}
+.sub.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.cur,.dot{animation:none}.bar i{transition:none}}
 </style>
 </head>
 <body>
 <main>
-<h1>gpu-pilot</h1>
-<p class="dim">H100 hours and an open-model API, run by one person you can email. Early-access pilot.</p>
+<h1><span id="ty">gpu-pilot</span><span class="cur"></span></h1>
+<p class="dim sub on" id="sub">H100 hours and an open-model API, run by one person you can email. Early-access pilot.</p>
 
 <p class="p">cat README</p>
 <p>I run a small GPU setup and I want a few teams to use it on real jobs and tell me what breaks. Pricing is set under the usual marketplaces. It is a pilot: capacity is limited and there is no SLA.</p>
@@ -65,7 +76,7 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 </table>
 <p class="dim">API: priced about 15% under OpenRouter for the same class of open models.</p>
 
-<h2>live</h2>
+<h2 id="lv"><span class="dot"></span>live</h2>
 <p class="dim">OpenRouter data is fetched when this page loads, Vast hourly. Amber = real market data, grey = static price from the vendor page (no public price API), white = this pilot.</p>
 <p class="p">H100 per GPU-hour</p>
 <div id="g1"><p class="dim">loading...</p></div>
@@ -107,7 +118,7 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 (function(){
 var $=function(i){return document.getElementById(i)};
 function row(l,v,max,cls,t){var d=document.createElement("div");d.className="row";
-d.innerHTML='<span></span><div class="bar"><i class="'+cls+'" style="width:'+Math.max(2,v/max*100)+'%"></i></div><span></span>';
+d.innerHTML='<span></span><div class="bar"><i class="'+cls+'" data-w="'+Math.max(2,v/max*100)+'"></i></div><span></span>';
 d.children[0].textContent=l;d.children[2].textContent=t;return d}
 function ago(iso){var m=Math.round((Date.now()-Date.parse(iso))/60000);return m<90?m+" min ago":Math.round(m/60)+" h ago"}
 var base=[["gpu-pilot",1.49,"me","$1.49"],["Lambda",3.99,"","$3.99 static"],["Together",3.99,"","$3.99 static"],["AWS p5",6.88,"","$6.88 static"]];
@@ -115,7 +126,7 @@ function h100(v){var g=$("g1");g.innerHTML="";var r=base.slice(0,1);
 if(v){r.push(["Vast floor",v.min,"live","$"+v.min.toFixed(2)]);r.push(["Vast median",v.median,"live","$"+v.median.toFixed(2)]);}
 r=r.concat(base.slice(1));
 r.forEach(function(x){g.appendChild(row(x[0],x[1],7,x[2],x[3]))});
-$("g1n").textContent=v?"Vast: "+v.offers+" on-demand H100 SXM offers, pulled from Vast by an hourly job (Vast blocks direct browser requests). Last updated "+v.updated.replace("T"," ").replace("Z"," UTC")+" ("+ago(v.updated)+"). Static rows checked 12 Oct 2026, sources in the table above.":"Live Vast data unavailable, showing static prices checked 12 Oct 2026 only.";
+$("g1n").innerHTML=v?"Vast: "+v.offers+" on-demand H100 SXM offers, pulled from Vast by an hourly job (Vast blocks direct browser requests). Last updated "+v.updated.replace("T"," ").replace("Z"," UTC")+" (<b id=\"t1\" data-t=\""+v.updated+"\"></b>). Static rows checked 12 Oct 2026, sources in the table above.":"Live Vast data unavailable, showing static prices checked 12 Oct 2026 only.";
 if(v&&v.min<=1.49){$("pr").textContent="price: at or near the marketplace floor, with a dedicated box and one person to ask"}}
 fetch("data/vast-h100.json?"+Date.now()).then(function(r){return r.json()}).then(h100).catch(function(){h100(null)});
 fetch("https://openrouter.ai/api/v1/models").then(function(r){return r.json()}).then(function(j){
@@ -124,8 +135,16 @@ if(!m.length)throw 0;var g=$("g2");g.innerHTML="";var max=0;
 m.forEach(function(x){max=Math.max(max,x.pricing.completion*1e6)});
 m.forEach(function(x){var p=x.pricing.completion*1e6,n=x.id.replace("qwen/","");
 g.appendChild(row(n,p,max,"live","$"+p.toFixed(2)));g.appendChild(row("  pilot",p*.85,max,"me","$"+(p*.85).toFixed(2)))});
-$("g2n").textContent="OpenRouter models API, 4 newest open-weight Qwen models, fetched "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC. Pilot column is the 15% discount applied to that price, for models I serve; ask which.";
+$("g2n").innerHTML="OpenRouter models API, 4 newest open-weight Qwen models, fetched "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC (<b id=\"t2\" data-t=\""+new Date().toISOString()+"\"></b>). Pilot column is the 15% discount applied to that price, for models I serve; ask which.";
 }).catch(function(){$("g2").innerHTML='<p class="dim">Live OpenRouter data unavailable. API pricing: about 15% under OpenRouter for the same model.</p>'});
+function tick(){["t1","t2"].forEach(function(i){var e=$(i);if(!e)return;var sec=Math.max(0,Math.round((Date.now()-Date.parse(e.getAttribute("data-t")))/1000));
+e.textContent=sec<3600?Math.floor(sec/60)+"m "+(sec%60)+"s ago":Math.floor(sec/3600)+"h "+Math.floor(sec%3600/60)+"m ago"})}
+setInterval(tick,1000);
+function grow(){document.querySelectorAll(".bar i[data-w]").forEach(function(b,k){if(b.dataset.on)return;b.dataset.on=1;setTimeout(function(){b.style.width=b.getAttribute("data-w")+"%"},60+k*110)})}
+setInterval(grow,200);
+var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+var ty=$("ty"),txt=ty.textContent;if(!rm){ty.textContent="";var n=0;var iv=setInterval(function(){ty.textContent=txt.slice(0,++n);if(n>=txt.length)clearInterval(iv)},90)}
+if(rm)document.querySelectorAll(".bar i[data-w]").forEach(function(b){b.style.width=b.getAttribute("data-w")+"%"});
 })();
 </script>
 </body>
