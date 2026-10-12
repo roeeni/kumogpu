@@ -5,7 +5,8 @@ H100 80GB: $1.49/hour, dedicated SSH access, pay for hours used.
 Chat API: about 15% below OpenRouter, OpenAI-compatible.
 Models: Qwen-class open models. Ask which models are currently served.
 Limited capacity. No SLA. Pilot pricing can change.
-Free test for the first teams: 4 to 8 hours on one job of your choice. Pilot terms apply.
+Free test for the first teams: 4 to 8 hours on one job of your choice. No credit card, no signup. Pilot terms apply.
+The machine is set up ahead with vLLM or Ollama, and your data is deleted when the job ends.
 The machine can be interrupted without much warning, and I will tell you right away.
 
 To start: email what you would run, rough hours per month,
