@@ -1,4 +1,4 @@
-gpu-pilot
+KumoGPU
 H100 hours and an open-model API. Early-access pilot.
 
 H100 80GB: $1.49/hour, dedicated SSH access, pay for hours used.
