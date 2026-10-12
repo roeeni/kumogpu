@@ -142,7 +142,7 @@ h2:before{color:var(--pur)}
 <p class="dim" id="g2n"></p>
 
 <h2 id="network">network</h2>
-<p class="dim">Simulation. The events below are generated in your browser to show what activity looks like. They are not real customer jobs. The prices and the machine status above are the real part.</p>
+<p class="dim">Illustrative network view. Not live traffic and not customer activity. Prices and machine status above are real.</p>
 <div class="mapwrap"><canvas id="map" aria-label="Simulated world map with animated GPU job events"></canvas></div>
 <div id="feed" aria-hidden="true"></div>
 
@@ -243,15 +243,14 @@ rip=rip.filter(function(r){var t=(now-r.t0)/900;if(t>=1)return false;ctx.globalA
 function loop(now){frame(now);if(on&&(arcs.length||rip.length))raf=requestAnimationFrame(loop);else raf=0}
 function kick(){if(!raf&&!rm)raf=requestAnimationFrame(loop)}
 function pick(){return Math.floor(Math.random()*C.length)}
-var open=[];
+var KINDS=[["route opened","#ff8a1f"],["heartbeat ok","#a67cf0"],["link check ok","#a67cf0"],["route closed","#a67cf0"]];
 function ev(){if(!on){return}
-var done=open.length>3||(open.length&&Math.random()<.4),i,j,kind,job;
-if(done){job=open.splice(Math.floor(Math.random()*open.length),1)[0];kind="done"}else{i=pick();do{j=pick()}while(j===i);job={i:i,j:j,w:WL[Math.floor(Math.random()*WL.length)],g:Math.random()<.25?2:1,m:20+Math.floor(Math.random()*400)};open.push(job);kind="start"}
-var A=C[job.i],B=C[job.j],col=kind==="start"?"#ff8a1f":"#a67cf0";
-if(!rm){arcs.push({a:proj(A[1],A[2]),b:proj(B[1],B[2]),t0:performance.now(),dur:1500+Math.random()*900,c:col});kick()}
+var i=pick(),j,k=KINDS[Math.floor(Math.random()*KINDS.length)],hb=k[0]==="heartbeat ok";
+do{j=pick()}while(j===i);
+var A=C[i],B=C[j];
+if(!rm){arcs.push({a:proj(A[1],A[2]),b:hb?proj(A[1],A[2]):proj(B[1],B[2]),t0:performance.now(),dur:hb?700:1500+Math.random()*900,c:k[1]});kick()}
 var d=new Date(),f=function(n){return(n<10?"0":"")+n},line=document.createElement("div");
-var dur=job.m>=60?Math.floor(job.m/60)+"h "+(job.m%60)+"m":job.m+"m";
-line.innerHTML='<span class="ft">'+f(d.getHours())+":"+f(d.getMinutes())+":"+f(d.getSeconds())+'</span> <span class="fk" style="color:'+col+'">'+(kind==="start"?"started  ":"finished ")+'</span> '+job.w+", "+job.g+"x H100, "+A[0]+" to "+B[0]+(kind==="done"?", "+dur:"");
+line.innerHTML='<span class="ft">'+f(d.getHours())+":"+f(d.getMinutes())+":"+f(d.getSeconds())+'</span> <span class="fk" style="color:'+k[1]+'">'+k[0]+'</span> '+(hb?A[0]:A[0]+" to "+B[0]);
 feed.insertBefore(line,feed.firstChild);while(feed.children.length>7)feed.removeChild(feed.lastChild)}
 function next(){ev();setTimeout(next,1800+Math.random()*2600)}
 build();window.addEventListener("resize",build);
