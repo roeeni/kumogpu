@@ -107,7 +107,7 @@ h2:before{color:var(--pur)}
 <p class="dim">H100 80GB, USD per GPU-hour, list prices checked 12 Oct 2026.</p>
 <table>
 <tr><th>option</th><th>price</th><th>what you get</th></tr>
-<tr><td>gpu-pilot</td><td>$1.49</td><td>dedicated, SSH, pay for hours used, no contract</td></tr>
+<tr><td>KumoGPU</td><td>$1.49</td><td>dedicated, SSH, pay for hours used, no contract</td></tr>
 <tr><td><a href="https://vast.ai/pricing/gpu/H100-SXM">Vast.ai</a></td><td>from $1.73</td><td>marketplace, hosts and quality vary</td></tr>
 <tr><td><a href="https://lambda.ai/instances">Lambda</a></td><td>$3.99</td><td>on-demand instance</td></tr>
 <tr><td><a href="https://www.together.ai/pricing">Together AI</a></td><td>$3.99 / $5.49</td><td>on-demand cluster / dedicated single-tenant</td></tr>
@@ -147,9 +147,9 @@ h2:before{color:var(--pur)}
 <p>Email what you would run, roughly how many hours a month, and your model or framework. I answer myself.</p>
 <table>
 <tr><th>channel</th><th>where</th></tr>
-<tr><td>email</td><td><a href="mailto:tpmel53@gmail.com?subject=gpu-pilot%20access&amp;body=What%20I%20would%20run%3A%0AHours%20per%20month%3A%0AModel%20or%20framework%3A">tpmel53@gmail.com</a></td></tr>
+<tr><td>email</td><td><a href="mailto:tpmel53@gmail.com?subject=KumoGPU%20access&amp;body=What%20I%20would%20run%3A%0AHours%20per%20month%3A%0AModel%20or%20framework%3A">tpmel53@gmail.com</a></td></tr>
 <tr><td>linkedin</td><td><a href="https://il.linkedin.com/in/roee-ninyo">linkedin.com/in/roee-ninyo</a></td></tr>
-<tr><td>terminal</td><td style="overflow-wrap:anywhere"><a href="card.txt">curl -fsSL https://roeeni.github.io/gpu-pilot/card.txt</a></td></tr>
+<tr><td>terminal</td><td style="overflow-wrap:anywhere"><a href="card.txt">curl -fsSL https://roeeni.github.io/kumogpu/card.txt</a></td></tr>
 <tr><td>discord</td><td class="dim">invite coming soon</td></tr>
 <tr><td>telegram</td><td class="dim">invite coming soon</td></tr>
 </table>
@@ -163,7 +163,7 @@ function row(l,v,max,cls,t){var d=document.createElement("div");d.className="row
 d.innerHTML='<span></span><div class="bar"><i class="'+cls+'" data-w="'+Math.max(2,v/max*100)+'"></i></div><span></span>';
 d.children[0].textContent=l;d.children[2].textContent=t;return d}
 function ago(iso){var m=Math.round((Date.now()-Date.parse(iso))/60000);return m<90?m+" min ago":Math.round(m/60)+" h ago"}
-var base=[["gpu-pilot",1.49,"me","$1.49"],["Lambda",3.99,"","$3.99 static"],["Together",3.99,"","$3.99 static"],["AWS p5",6.88,"","$6.88 static"]];
+var base=[["KumoGPU",1.49,"me","$1.49"],["Lambda",3.99,"","$3.99 static"],["Together",3.99,"","$3.99 static"],["AWS p5",6.88,"","$6.88 static"]];
 function h100(v){var g=$("g1");g.innerHTML="";var r=base.slice(0,1);
 if(v){r.push(["Vast floor",v.min,"live","$"+v.min.toFixed(2)]);r.push(["Vast median",v.median,"live","$"+v.median.toFixed(2)]);}
 r=r.concat(base.slice(1));
@@ -194,4 +194,4 @@ if(rm)document.querySelectorAll(".bar i[data-w]").forEach(function(b){b.style.wi
 f.addEventListener("load",function(){fit();try{new ResizeObserver(fit).observe(f.contentDocument.body)}catch(e){}});window.addEventListener("resize",fit)})();
 </script>
 </body>
-  </html>
+</html>
