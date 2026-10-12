@@ -6,7 +6,7 @@
 <title>gpu-pilot: H100 hours and an open-model API</title>
 <meta name="description" content="Early-access pilot: dedicated H100 80GB at $1.49/h and an OpenAI-compatible API for open models. Limited capacity, no SLA.">
 <style>
-:root{--bg:#101010;--fg:#d6d3cb;--dim:#8a877f;--hi:#f2efe6;--acc:#e8b04a;--rule:#2b2b28}
+:root{--bg:#0e0a14;--fg:#d8d2e0;--dim:#8c8398;--hi:#f6f0ff;--acc:#ff8a1f;--rule:#2c2238;--pur:#a67cf0}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
 main{max-width:76ch;margin:0 auto;padding:44px 20px 24px}
@@ -37,13 +37,13 @@ footer{max-width:76ch;margin:30px auto 0;padding:18px 20px 44px;border-top:1px s
 .tag{color:var(--dim)}
 @media(max-width:560px){.row{grid-template-columns:11ch 1fr 9ch;font-size:12px}}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 3px)}
-h1{text-shadow:0 0 12px rgba(232,176,74,.35)}
+h1{text-shadow:0 0 12px rgba(255,138,31,.35)}
 .cur{display:inline-block;width:.6em;height:1.05em;background:var(--acc);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:8px;box-shadow:0 0 8px var(--acc);animation:pulse 1.6s ease-in-out infinite;vertical-align:1px}
 @keyframes pulse{50%{opacity:.25;box-shadow:0 0 2px var(--acc)}}
 .bar i{transition:width 1.1s cubic-bezier(.2,.8,.2,1);width:0}
-.bar i.live{box-shadow:0 0 8px rgba(232,176,74,.45)}
+.bar i.live{box-shadow:0 0 8px rgba(255,138,31,.45)}
 .sub{opacity:0;transition:opacity .8s}
 .sub.on{opacity:1}
 @media(prefers-reduced-motion:reduce){.cur,.dot{animation:none}.bar i{transition:none}}
@@ -57,12 +57,29 @@ h2{scroll-margin-top:16px}
 @media(max-width:560px){.two{grid-template-columns:1fr}}
 .chat{width:100%;height:620px;border:0;margin-top:14px;display:block}
 @media(max-width:560px){.chat{height:820px}}
+
+body{background:radial-gradient(ellipse at 50% -10%,#241338 0,transparent 55%),var(--bg);background-attachment:fixed}
+.web{position:absolute;top:0;left:0;width:120px;height:120px;pointer-events:none;opacity:.5}
+.bats{position:absolute;top:18px;right:14px;width:120px;height:50px;pointer-events:none;color:var(--pur)}
+.bats svg{position:absolute;animation:fl 5s ease-in-out infinite}
+.bats svg:nth-child(2){animation-delay:-2.2s;top:16px;left:60px}
+@keyframes fl{50%{transform:translateY(-6px) rotate(-4deg)}}
+main{position:relative}
+.pk{width:20px;height:20px;vertical-align:-3px;margin-right:8px}
+.boo{color:var(--pur);font-size:13px;margin:2px 0 0}
+a:hover{color:var(--pur)}
+h2:before{color:var(--pur)}
+.ghost{width:14px;height:16px;vertical-align:-3px;margin-right:6px;color:var(--dim)}
+@media(prefers-reduced-motion:reduce){.bats svg{animation:none}}
+@media(max-width:560px){.bats{right:6px;transform:scale(.7);transform-origin:top right}.web{width:80px;height:80px}}
 </style>
 </head>
 <body>
 <main>
-<h1><span id="ty">gpu-pilot</span><span class="cur"></span></h1>
+<svg class="web" viewBox="0 0 120 120" fill="none" stroke="#a67cf0" stroke-width="1"><path d="M0 0L120 0M0 0L0 120M0 0L100 80M0 0L80 100M0 0L115 40M0 0L40 115"/><path d="M30 0Q26 26 0 30M60 0Q50 50 0 60M90 0Q74 74 0 90M115 0Q100 100 0 115" /></svg><div class="bats"><svg viewBox="0 0 40 20" width="34" height="17" fill="currentColor"><path d="M20 6c-2-3-5-4-9-3 2 1 3 3 3 5-3-1-6 0-8 2 3 0 5 1 6 3 1-2 3-3 5-2l3 5 3-5c2-1 4 0 5 2 1-2 3-3 6-3-2-2-5-3-8-2 0-2 1-4 3-5-4-1-7 0-9 3z"/></svg><svg viewBox="0 0 40 20" width="34" height="17" fill="currentColor"><path d="M20 6c-2-3-5-4-9-3 2 1 3 3 3 5-3-1-6 0-8 2 3 0 5 1 6 3 1-2 3-3 5-2l3 5 3-5c2-1 4 0 5 2 1-2 3-3 6-3-2-2-5-3-8-2 0-2 1-4 3-5-4-1-7 0-9 3z"/></svg></div>
+<h1><svg class="pk" viewBox="0 0 24 24"><path d="M12 5c1-2 2-3 4-3" stroke="#6fae4f" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="12" cy="14" rx="10" ry="8.5" fill="#ff8a1f"/><path d="M12 6c-3 3-3 14 0 16M12 6c3 3 3 14 0 16" stroke="#c4560a" stroke-width="1" fill="none"/><path d="M6.5 11l3 2.2-3.5.3zM17.5 11l-3 2.2 3.5.3zM8 17c2 2 6 2 8 0-1 .8-2 .7-2.6 0-.6.7-1.8.7-2.8 0-.8.7-1.8.8-2.6 0z" fill="#1a0d00"/></svg><span id="ty">gpu-pilot</span><span class="cur"></span></h1>
 <p class="dim sub on" id="sub">H100 hours and an open-model API, run by one person you can email. Early-access pilot.</p>
+<p class="boo sub on">Happy Halloween. The only scary thing here is your current cloud bill.</p>
 <nav class="nav">[ <a href="#offer">offer</a> | <a href="#why">why</a> | <a href="#compare">compare</a> | <a href="#live">live</a> | <a href="#scope">limits</a> | <a href="#contact">contact</a> ]</nav>
 
 
@@ -138,7 +155,7 @@ h2{scroll-margin-top:16px}
 </table>
 <iframe id="chat" class="chat" src="chat.html" title="gpu-pilot contact assistant" width="100%" height="620px" loading="lazy"></iframe>
 </main>
-<footer>HaShlosha 2, Tel Aviv<br>To stop hearing from me, reply STOP to any email.</footer>
+<footer><svg class="ghost" viewBox="0 0 14 16" fill="currentColor"><path d="M7 0C3.500 0 1 2.6 1 6v10l2-2 2 2 2-2 2 2 2-2 2 2V6c0-3.400-2.500-6-6-6zM5 6a1 1 0 110 2 1 1 0 010-2zm4 0a1 1 0 110 2 1 1 0 010-2z"/></svg>HaShlosha 2, Tel Aviv<br>To stop hearing from me, reply STOP to any email.</footer>
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)};
