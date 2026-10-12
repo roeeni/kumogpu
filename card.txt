@@ -13,7 +13,7 @@ and your model or framework. Availability is confirmed by the operator.
 
 Email: tpmel53@gmail.com
 LinkedIn: https://il.linkedin.com/in/roee-ninyo
-Website: https://roeeni.github.io/gpu-pilot/
+Website: https://roeeni.github.io/kumogpu/
 
 SSH chat and IRC: not live yet.
 Discord and Telegram: invite links coming soon.
