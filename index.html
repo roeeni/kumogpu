@@ -72,6 +72,20 @@ h2:before{color:var(--pur)}
 .ghost{width:14px;height:16px;vertical-align:-3px;margin-right:6px;color:var(--dim)}
 @media(prefers-reduced-motion:reduce){.bats svg{animation:none}}
 @media(max-width:560px){.bats{right:6px;transform:scale(.7);transform-origin:top right}.web{width:80px;height:80px}}
+
+.st{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.sd{width:10px;height:10px;border-radius:50%;background:var(--dim);flex:none}
+.sd.free{background:#7be07b;box-shadow:0 0 8px #7be07b;animation:pulse 1.6s ease-in-out infinite}
+.sd.busy{background:var(--pur);box-shadow:0 0 8px var(--pur)}
+.sd.off{background:#6b6478}
+.sl{color:var(--hi);font-weight:700}
+.mapwrap{border:1px solid var(--rule);background:#0a0710;margin:12px 0 0;position:relative}
+#map{display:block;width:100%}
+#feed{margin:0;border:1px solid var(--rule);border-top:0;background:#0a0710;padding:8px 10px;font-size:12px;line-height:1.55;height:152px;overflow:hidden;color:var(--fg)}
+#feed div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:fin .5s}
+@keyframes fin{from{opacity:0;transform:translateY(-4px)}}
+.ft{color:var(--dim)}.fk{font-weight:700}
+@media(prefers-reduced-motion:reduce){.sd.free,#feed div{animation:none}}
 </style>
 </head>
 <body>
@@ -80,7 +94,7 @@ h2:before{color:var(--pur)}
 <h1><svg class="pk" viewBox="0 0 24 24"><path d="M12 5c1-2 2-3 4-3" stroke="#6fae4f" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="12" cy="14" rx="10" ry="8.5" fill="#ff8a1f"/><path d="M12 6c-3 3-3 14 0 16M12 6c3 3 3 14 0 16" stroke="#c4560a" stroke-width="1" fill="none"/><path d="M6.5 11l3 2.2-3.5.3zM17.5 11l-3 2.2 3.5.3zM8 17c2 2 6 2 8 0-1 .8-2 .7-2.6 0-.6.7-1.8.7-2.8 0-.8.7-1.8.8-2.6 0z" fill="#1a0d00"/></svg><span id="ty">KumoGPU</span><span class="cur"></span></h1>
 <p class="dim sub on" id="sub">H100 hours and an open-model API, run by one person you can email. Early-access pilot.</p>
 <p class="boo sub on">Happy Halloween. The only scary thing here is your current cloud bill.</p>
-<nav class="nav">[ <a href="#offer">offer</a> | <a href="#why">why</a> | <a href="#compare">compare</a> | <a href="#live">live</a> | <a href="#scope">limits</a> | <a href="#contact">contact</a> ]</nav>
+<nav class="nav">[ <a href="#offer">offer</a> | <a href="#why">why</a> | <a href="#compare">compare</a> | <a href="#live">live</a> | <a href="#network">map</a> | <a href="#scope">limits</a> | <a href="#contact">contact</a> ]</nav>
 
 
 <p class="p">cat README</p>
@@ -116,13 +130,21 @@ h2:before{color:var(--pur)}
 <p class="dim">API: priced about 15% under OpenRouter for the same class of open models.</p>
 
 <h2 id="live"><span class="dot"></span>live</h2>
-<p class="dim">OpenRouter data is fetched when this page loads, Vast hourly. Amber = real market data, grey = static price from the vendor page (no public price API), white = this pilot.</p>
+<p class="dim">This section is real and checks for new data every 30 seconds without a reload. OpenRouter prices come straight from their API, Vast prices from a job that runs every 10 minutes. Amber = real market data, grey = static price from the vendor page (no public price API), white = this pilot.</p>
+<p class="p">machine status</p>
+<div class="st"><span class="sd" id="sd"></span><span class="sl" id="sl">checking...</span><span class="dim" id="sm"></span></div>
+<p class="dim" id="sn"></p>
 <p class="p">H100 per GPU-hour</p>
 <div id="g1"><p class="dim">loading...</p></div>
 <p class="dim" id="g1n"></p>
 <p class="p">open-model API, USD per 1M output tokens (OpenRouter live, pilot = 15% below)</p>
 <div id="g2"><p class="dim">loading...</p></div>
 <p class="dim" id="g2n"></p>
+
+<h2 id="network">network</h2>
+<p class="dim">Simulation. The events below are generated in your browser to show what activity looks like. They are not real customer jobs. The prices and the machine status above are the real part.</p>
+<div class="mapwrap"><canvas id="map" aria-label="Simulated world map with animated GPU job events"></canvas></div>
+<div id="feed" aria-hidden="true"></div>
 
 <h2 id="scope">fits and limits</h2>
 <div class="two">
@@ -170,16 +192,22 @@ r=r.concat(base.slice(1));
 r.forEach(function(x){g.appendChild(row(x[0],x[1],7,x[2],x[3]))});
 $("g1n").innerHTML=v?"Vast: "+v.offers+" on-demand H100 SXM offers, pulled from Vast by an hourly job (Vast blocks direct browser requests). Last updated "+v.updated.replace("T"," ").replace("Z"," UTC")+" (<b id=\"t1\" data-t=\""+v.updated+"\"></b>). Static rows checked 12 Oct 2026, sources in the table above.":"Live Vast data unavailable, showing static prices checked 12 Oct 2026 only.";
 if(v&&v.min<=1.49){$("pr").textContent="price: at or near the marketplace floor, with a dedicated box and one person to ask"}}
-fetch("data/vast-h100.json?"+Date.now()).then(function(r){return r.json()}).then(h100).catch(function(){h100(null)});
-fetch("https://openrouter.ai/api/v1/models").then(function(r){return r.json()}).then(function(j){
+var lastV=null;function loadV(){fetch("data/vast-h100.json?"+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(v){var s=JSON.stringify(v);if(s===lastV)return;lastV=s;h100(v)}).catch(function(){if(lastV===null){lastV="x";h100(null)}})}loadV();setInterval(loadV,30000);
+var lastO=null;function loadO(){fetch("https://openrouter.ai/api/v1/models",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
 var m=j.data.filter(function(x){return /^qwen\//.test(x.id)&&x.hugging_face_id&&x.id.indexOf(":free")<0&&+x.pricing.completion>0}).sort(function(a,b){return b.created-a.created}).slice(0,4);
-if(!m.length)throw 0;var g=$("g2");g.innerHTML="";var max=0;
+if(!m.length)throw 0;var key=JSON.stringify(m.map(function(x){return[x.id,x.pricing.completion]}));var g=$("g2");
+if(key!==lastO){lastO=key;g.innerHTML="";var max=0;
 m.forEach(function(x){max=Math.max(max,x.pricing.completion*1e6)});
 m.forEach(function(x){var p=x.pricing.completion*1e6,n=x.id.replace("qwen/","");
-g.appendChild(row(n,p,max,"live","$"+p.toFixed(2)));g.appendChild(row("  pilot",p*.85,max,"me","$"+(p*.85).toFixed(2)))});
-$("g2n").innerHTML="OpenRouter models API, 4 newest open-weight Qwen models, fetched "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC (<b id=\"t2\" data-t=\""+new Date().toISOString()+"\"></b>). Pilot column is the 15% discount applied to that price, for models I serve; ask which.";
-}).catch(function(){$("g2").innerHTML='<p class="dim">Live OpenRouter data unavailable. API pricing: about 15% under OpenRouter for the same model.</p>'});
-function tick(){["t1","t2"].forEach(function(i){var e=$(i);if(!e)return;var sec=Math.max(0,Math.round((Date.now()-Date.parse(e.getAttribute("data-t")))/1000));
+g.appendChild(row(n,p,max,"live","$"+p.toFixed(2)));g.appendChild(row("  pilot",p*.85,max,"me","$"+(p*.85).toFixed(2)))})}
+$("g2n").innerHTML="OpenRouter models API, 4 newest open-weight Qwen models, last checked "+new Date().toISOString().slice(0,16).replace("T"," ")+" UTC (<b id=\"t2\" data-t=\""+new Date().toISOString()+"\"></b>). Pilot column is the 15% discount applied to that price, for models I serve; ask which.";
+}).catch(function(){if(lastO===null){lastO="x";$("g2").innerHTML='<p class="dim">Live OpenRouter data unavailable. API pricing: about 15% under OpenRouter for the same model.</p>'}})}
+loadO();setInterval(loadO,60000);
+var SL={free:["free now","free"],busy:["busy","busy"],offline:["offline right now","off"]};
+function loadS(){fetch("data/status.json?"+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(s){var k=SL[s.state]||SL.offline;$("sd").className="sd "+k[1];$("sl").textContent=k[0];$("sm").textContent=s.message||"";
+$("sn").innerHTML="Status set by the operator, last updated <b id=\"t3\" data-t=\""+s.updated+"\"></b>.";tick()}).catch(function(){$("sl").textContent="status unavailable";$("sd").className="sd"})}
+loadS();setInterval(loadS,30000);
+function tick(){["t1","t2","t3"].forEach(function(i){var e=$(i);if(!e)return;var sec=Math.max(0,Math.round((Date.now()-Date.parse(e.getAttribute("data-t")))/1000));
 e.textContent=sec<3600?Math.floor(sec/60)+"m "+(sec%60)+"s ago":Math.floor(sec/3600)+"h "+Math.floor(sec%3600/60)+"m ago"})}
 setInterval(tick,1000);
 function grow(){document.querySelectorAll(".bar i[data-w]").forEach(function(b,k){if(b.dataset.on)return;b.dataset.on=1;setTimeout(function(){b.style.width=b.getAttribute("data-w")+"%"},60+k*110)})}
@@ -187,6 +215,48 @@ setInterval(grow,200);
 var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
 var ty=$("ty"),txt=ty.textContent;if(!rm){ty.textContent="";var n=0;var iv=setInterval(function(){ty.textContent=txt.slice(0,++n);if(n>=txt.length)clearInterval(iv)},90)}
 if(rm)document.querySelectorAll(".bar i[data-w]").forEach(function(b){b.style.width=b.getAttribute("data-w")+"%"});
+})();
+</script>
+<script>
+(function(){
+var MASK="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/////zAAAAAAAAAAAAAAAAAAAAAAA//v///8AA/gBgAADwAAAAAAAAAAACN/8////wAA/AAAAAAOAAAAAAAAAAB/m/wf///wAAAAAB8AD/4AHAAAAAAADwC/4Af//wAAAAAHAB//8ADAAAAAAAH/33+AP//gAAAAAMD////+H4AAAH/g+f57/wP//gAAH8AAH///////wcwf////7938H/4AAAf/yf//////////+///////h+H/g+AA//////////////Ef//////38D8AeAB//////////////Af/////wHYB4AAAP7////////////+Af9////gH0AQAAAP5///////////PwADwH///wH+AAAAGH4/////////+AcAAGAA///+H/AAAAGDz/////////4A8AAAAAf///v/wAAAfD//////////8A4AAAAAP/////wAAAfv///////////AgAAAAAP/////QAAAD///////////9AAAAAAAH////88AAAD///////////9AAAAAAAD/////AAAAB////v//////5AAAAAAAD////8AAAAB//4ff//////xgAAAAAAD////gAAAAfz3zPP//////DAAAAAAAD////AAAAAfif//v/////+CAAAAAAAD///+AAAAAfAzf/n////+OGAAAAAAAB///8AAAAAG/AP///////mOAAAAAAAA///8AAAAAP/AA///////F8AAAAAAAAf//wAAAAAf/zB///////hAAAAAAAAAP//wAAAAAf//////////gAAAAAAAAAP/AwAAAAA///////////gAAAAAAAAAH/AQAAAAB///+/n/////AAAAAAAAAAC+AAAAAAD////f+H///+gAAAAAAAAAAeA4AAAAD////f/D///8gAAAAAAAAAAfGGAAAAH////v+A/z/QAAAAAAAAAAAP8FwAAAD////v+A/B+ggAAAAAAAAAAD8AAAAAD////34AeB/AgAAAAAAAAAAAPgAAAAH/////gAcAfgwAAAAAAAAAAADAAAAAH////+AAcAfgIAAAAAAAAAAABj/AAAD/////wAMATBYAAAAAAAAAAAA//AAAB/////gAKAQAYAAAAAAAAAAAAH/gAAA/////gACAICIAAAAAAAAAAAAH/8AAAYH///AAAAsGAAAAAAAAAAAAAH/+AAAAB//+AAAAceAAAAAAAAAAAAAP/+AAAAD//8AAAAc+wAAAAAAAAAAAAf//wAAAD//4AAAAMfhgAAAAAAAAAAAP//+AAAB//wAAAAGNi/AAAAAAAAAAAf///AAAA//wAAAACAAPsAAAAAAAAAAP///gAAA//wAAAAB4AHwAAAAAAAAAAP///AAAA//wAAAAABoAYIAAAAAAAAAH///AAAAf/wAAAAAAAhAAAAAAAAAAAD//+AAAA//wgAAAAABxAAAAAAAAAAAD//+AAAA//xgAAAAAPxgBAAAAAAAAAA//+AAAA//zgAAAAAf/gABAAAAAAAAAf/8AAAA//DgAAAAA//wAAAAAAAAAAAf/8AAAAf/DAAAAAH//4CAAAAAAAAAAf/4AAAAf/DAAAAAH//8AAAAAAAAAAA//AAAAAf+CAAAAAH//+AAAAAAAAAAA//AAAAAf+AAAAAAH//+AAAAAAAAAAA//AAAAAP8AAAAAAH//+AAAAAAAAAAA/+AAAAAH4AAAAAAD//+AAAAAAAAAAA/8AAAAAHwAAAAAADwf8AAAAAAAAAAA/wAAAAAAAAAAAAACAH8AIAAAAAAAAB/wAAAAAAAAAAAAAAAD4AEAAAAAAAAB/AAAAAAAAAAAAAAAAAAAGAAAAAAAAB+AAAAAAAAAAAAAAAAAwAMAAAAAAAAB8AAAAAAAAAAAAAAAAAQAYAAAAAAAAD4AAAAAAAAAAAAAAAAAABwAAAAAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAAAAAAAAACAAAAAAAAAAAAAAAAADwgAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",GW=180,GH=73;
+var cv=document.getElementById("map"),feed=document.getElementById("feed");if(!cv)return;
+var ctx=cv.getContext("2d"),rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+var C=[["New York",-74,40.7],["San Francisco",-122.4,37.8],["Toronto",-79.4,43.7],["Sao Paulo",-46.6,-23.5],["London",-0.1,51.5],["Frankfurt",8.7,50.1],["Dubai",55.3,25.2],["Mumbai",72.9,19.1],["Singapore",103.8,1.35],["Tokyo",139.7,35.7],["Sydney",151.2,-33.9],["Johannesburg",28,-26.2],["Seoul",127,37.6],["Warsaw",21,52.2]];
+var WL=["fine-tune","batch inference","render","eval run","LoRA train","embedding run"];
+var bits=atob(MASK),land=[];for(var i=0;i<GW*GH;i++)land.push((bits.charCodeAt(i>>3)>>(7-(i&7)))&1);
+var W,H,dpr,base,arcs=[],rip=[],on=true,raf=0;
+function proj(lon,lat){return[(lon+180)/360*W,(85-lat)/145*H]}
+function build(){dpr=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=Math.round(W*GH/GW);cv.style.height=H+"px";cv.width=W*dpr;cv.height=H*dpr;
+base=document.createElement("canvas");base.width=cv.width;base.height=cv.height;var b=base.getContext("2d");b.scale(dpr,dpr);
+var cw=W/GW,ch=H/GH,r=Math.max(.7,cw*.3);b.fillStyle="#3b2c55";
+for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)if(land[y*GW+x]){b.beginPath();b.arc(x*cw+cw/2,y*ch+ch/2,r,0,6.2832);b.fill()}
+C.forEach(function(c){var p=proj(c[1],c[2]);b.fillStyle="#a67cf0";b.beginPath();b.arc(p[0],p[1],1.8,0,6.2832);b.fill()});
+frame(0)}
+function pt(a,b,t){var m=[(a[0]+b[0])/2,(a[1]+b[1])/2-Math.hypot(b[0]-a[0],b[1]-a[1])*.28];var u=1-t;return[u*u*a[0]+2*u*t*m[0]+t*t*b[0],u*u*a[1]+2*u*t*m[1]+t*t*b[1]]}
+function frame(now){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.drawImage(base,0,0);ctx.setTransform(dpr,0,0,dpr,0,0);
+arcs=arcs.filter(function(a){var t=(now-a.t0)/a.dur;if(t>=1){rip.push({p:a.b,t0:now,c:a.c});return false}
+var n=22,tail=.32;ctx.lineCap="round";
+for(var i=0;i<n;i++){var s=Math.max(0,t-tail*(1-i/n)),e=Math.max(0,t-tail*(1-(i+1)/n));if(e<=0)continue;var p1=pt(a.a,a.b,s),p2=pt(a.a,a.b,e);ctx.strokeStyle=a.c;ctx.globalAlpha=(i+1)/n*.9;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.stroke()}
+var h=pt(a.a,a.b,t);ctx.globalAlpha=1;ctx.fillStyle="#fff";ctx.shadowColor=a.c;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(h[0],h[1],2,0,6.2832);ctx.fill();ctx.shadowBlur=0;return true});
+rip=rip.filter(function(r){var t=(now-r.t0)/900;if(t>=1)return false;ctx.globalAlpha=(1-t)*.8;ctx.strokeStyle=r.c;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(r.p[0],r.p[1],2+t*12,0,6.2832);ctx.stroke();return true});ctx.globalAlpha=1}
+function loop(now){frame(now);if(on&&(arcs.length||rip.length))raf=requestAnimationFrame(loop);else raf=0}
+function kick(){if(!raf&&!rm)raf=requestAnimationFrame(loop)}
+function pick(){return Math.floor(Math.random()*C.length)}
+var open=[];
+function ev(){if(!on){return}
+var done=open.length>3||(open.length&&Math.random()<.4),i,j,kind,job;
+if(done){job=open.splice(Math.floor(Math.random()*open.length),1)[0];kind="done"}else{i=pick();do{j=pick()}while(j===i);job={i:i,j:j,w:WL[Math.floor(Math.random()*WL.length)],g:Math.random()<.25?2:1,m:20+Math.floor(Math.random()*400)};open.push(job);kind="start"}
+var A=C[job.i],B=C[job.j],col=kind==="start"?"#ff8a1f":"#a67cf0";
+if(!rm){arcs.push({a:proj(A[1],A[2]),b:proj(B[1],B[2]),t0:performance.now(),dur:1500+Math.random()*900,c:col});kick()}
+var d=new Date(),f=function(n){return(n<10?"0":"")+n},line=document.createElement("div");
+var dur=job.m>=60?Math.floor(job.m/60)+"h "+(job.m%60)+"m":job.m+"m";
+line.innerHTML='<span class="ft">'+f(d.getHours())+":"+f(d.getMinutes())+":"+f(d.getSeconds())+'</span> <span class="fk" style="color:'+col+'">'+(kind==="start"?"started  ":"finished ")+'</span> '+job.w+", "+job.g+"x H100, "+A[0]+" to "+B[0]+(kind==="done"?", "+dur:"");
+feed.insertBefore(line,feed.firstChild);while(feed.children.length>7)feed.removeChild(feed.lastChild)}
+function next(){ev();setTimeout(next,1800+Math.random()*2600)}
+build();window.addEventListener("resize",build);
+if("IntersectionObserver" in window)new IntersectionObserver(function(e){on=e[0].isIntersecting;if(on)kick()}).observe(cv);
+for(var k=0;k<4;k++)ev();next();
 })();
 </script>
 <script>
