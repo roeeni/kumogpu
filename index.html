@@ -6,7 +6,7 @@
 <title>KumoGPU: H100 hours and an open-model API</title>
 <meta name="description" content="Early-access pilot: dedicated H100 80GB at $1.49/h and an OpenAI-compatible API for open models. Limited capacity, no SLA.">
 <style>
-:root{--bg:#17110d;--fg:#e6d9c6;--dim:#a39482;--hi:#fff4e0;--acc:#f0a040;--rule:#3a2c20;--pur:#d9a77a}
+:root{--bg:#0f1626;--fg:#e8dfcc;--dim:#8f98ab;--hi:#fff4e0;--acc:#f0a040;--rule:#243049;--pur:#8fa6d6}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.75 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
 main{max-width:76ch;margin:0 auto;padding:44px 20px 24px}
@@ -58,7 +58,7 @@ h2{scroll-margin-top:16px}
 .chat{width:100%;height:620px;border:0;margin-top:14px;display:block}
 @media(max-width:560px){.chat{height:820px}}
 
-body{background:radial-gradient(ellipse at 50% -10%,#3a2414 0,transparent 55%),var(--bg);background-attachment:fixed}
+body{background:radial-gradient(ellipse at 50% -10%,#1c2a4a 0,transparent 55%),var(--bg);background-attachment:fixed}
 .web{position:absolute;top:0;left:0;width:120px;height:120px;pointer-events:none;opacity:.5}
 .bats{position:absolute;top:18px;right:14px;width:120px;height:50px;pointer-events:none;color:var(--pur)}
 .bats svg{position:absolute;animation:fl 5s ease-in-out infinite}
@@ -77,11 +77,11 @@ h2:before{color:var(--pur)}
 .sd{width:10px;height:10px;border-radius:50%;background:var(--dim);flex:none}
 .sd.free{background:#a8d68a;box-shadow:0 0 8px #a8d68a;animation:pulse 1.6s ease-in-out infinite}
 .sd.busy{background:var(--pur);box-shadow:0 0 8px var(--pur)}
-.sd.off{background:#7d705f}
+.sd.off{background:#5d6880}
 .sl{color:var(--hi);font-weight:700}
-.mapwrap{border:1px solid var(--rule);background:#120d09;margin:12px 0 0;position:relative}
+.mapwrap{border:1px solid var(--rule);background:#0a0f1c;margin:12px 0 0;position:relative}
 #map{display:block;width:100%}
-#feed{margin:0;border:1px solid var(--rule);border-top:0;background:#120d09;padding:8px 10px;font-size:12px;line-height:1.55;height:152px;overflow:hidden;color:var(--fg)}
+#feed{margin:0;border:1px solid var(--rule);border-top:0;background:#0a0f1c;padding:8px 10px;font-size:12px;line-height:1.55;height:152px;overflow:hidden;color:var(--fg)}
 #feed div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:fin .5s}
 @keyframes fin{from{opacity:0;transform:translateY(-4px)}}
 .ft{color:var(--dim)}.fk{font-weight:700}
@@ -229,7 +229,7 @@ var W,H,dpr,base,arcs=[],rip=[],on=true,raf=0;
 function proj(lon,lat){return[(lon+180)/360*W,(85-lat)/145*H]}
 function build(){dpr=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=Math.round(W*GH/GW);cv.style.height=H+"px";cv.width=W*dpr;cv.height=H*dpr;
 base=document.createElement("canvas");base.width=cv.width;base.height=cv.height;var b=base.getContext("2d");b.scale(dpr,dpr);
-var cw=W/GW,ch=H/GH,r=Math.max(.7,cw*.3);b.fillStyle="#4d3b2b";
+var cw=W/GW,ch=H/GH,r=Math.max(.7,cw*.3);b.fillStyle="#2e3d5e";
 for(var y=0;y<GH;y++)for(var x=0;x<GW;x++)if(land[y*GW+x]){b.beginPath();b.arc(x*cw+cw/2,y*ch+ch/2,r,0,6.2832);b.fill()}
 C.forEach(function(c){var p=proj(c[1],c[2]);b.fillStyle="#e0b070";b.beginPath();b.arc(p[0],p[1],1.8,0,6.2832);b.fill()});
 frame(0)}
