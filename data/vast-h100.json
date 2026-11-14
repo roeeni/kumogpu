@@ -1,8 +1,8 @@
 {
  "source": "console.vast.ai public offers API, H100 SXM on-demand, per GPU-hour",
- "updated": "2026-11-14T09:02:11Z",
- "offers": 16,
- "min": 1.8,
- "median": 2.927,
- "max": 5.047
+ "updated": "2026-11-14T15:43:33Z",
+ "offers": 20,
+ "min": 1.734,
+ "median": 2.667,
+ "max": 4.766
 }
